@@ -7,15 +7,15 @@ export const colors = {
   background: '#F6F8FC',
   surface: '#FFFFFF',
   text: '#111827',
-  textMuted: '#6B7280',
+  textMuted: '#4B5563',
   border: '#E5E7EB',
-  danger: '#E5484D',
-  success: '#22A06B',
-  warning: '#F97316',
-  info: '#3B82F6',
-  purple: '#7C3AED',
-  teal: '#0EA5A4',
-  gray: '#9CA3AF',
+  danger: '#B42318',
+  success: '#177245',
+  warning: '#C2410C',
+  info: '#1D4ED8',
+  purple: '#6D28D9',
+  teal: '#0F766E',
+  gray: '#4B5563',
 };
 
 export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 };

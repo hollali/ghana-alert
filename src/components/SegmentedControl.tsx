@@ -40,7 +40,7 @@ export function SegmentedControl({
 
 const styles = StyleSheet.create({
   container: {
-    height: 40,
+    minHeight: 44,
     flexDirection: 'row',
     borderRadius: radius.pill,
     borderWidth: 1,

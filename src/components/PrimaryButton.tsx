@@ -65,7 +65,7 @@ export function PrimaryButton({
 
 const styles = StyleSheet.create({
   base: {
-    height: 52,
+    minHeight: 52,
     width: '100%',
     borderRadius: radius.md,
     backgroundColor: colors.primary,

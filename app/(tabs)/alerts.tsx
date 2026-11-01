@@ -229,6 +229,7 @@ export default function AlertsScreen() {
         animationType="slide"
         statusBarTranslucent
         onRequestClose={() => setFilterOpen(false)}
+        accessibilityViewIsModal
       >
         <View style={styles.modalRoot}>
           <Pressable
@@ -242,7 +243,7 @@ export default function AlertsScreen() {
               <Text style={styles.sheetTitle}>{strings.alerts.filterTitle}</Text>
               <Pressable
                 onPress={() => setFilterOpen(false)}
-                hitSlop={8}
+                hitSlop={12}
                 accessibilityRole="button"
                 accessibilityLabel={strings.common.close}
               >
@@ -310,7 +311,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   titleRow: {
-    height: 40,
+    minHeight: 44,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -346,7 +347,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     paddingHorizontal: 12,
-    height: 30,
+    minHeight: 44,
     borderRadius: radius.pill,
     backgroundColor: '#EAF2FF',
   },
@@ -407,7 +408,7 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   filterRow: {
-    height: 52,
+    minHeight: 52,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

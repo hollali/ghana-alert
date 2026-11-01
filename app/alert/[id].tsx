@@ -41,7 +41,7 @@ export default function AlertDetailScreen() {
   const [snack, setSnack] = useState<string | null>(null);
 
   const entry = entries.find((item) => item.id === id);
-  const isBookmarked = !!entry;
+  const isBookmarked = entry?.status === 'saved';
 
   const goBack = () => {
     if (router.canGoBack()) {
@@ -74,7 +74,9 @@ export default function AlertDetailScreen() {
     if (!alert) return;
     RNAlert.alert(strings.alertDetail.menu, undefined, [
       {
-        text: isBookmarked ? strings.alertDetail.unsave : strings.alertDetail.save,
+        text: isBookmarked
+          ? strings.alertDetail.unsave
+          : strings.alertDetail.save,
         onPress: handleBookmark,
       },
       {

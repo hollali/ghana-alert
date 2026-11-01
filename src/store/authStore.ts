@@ -3,6 +3,9 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { mockUser } from '@/src/data/user';
+import { usePrefsStore } from '@/src/store/prefsStore';
+import { useReportsStore } from '@/src/store/reportsStore';
+import { useSavedStore } from '@/src/store/savedStore';
 import type { User } from '@/src/types';
 
 interface AuthState {
@@ -21,22 +24,42 @@ export const useAuthStore = create<AuthState>()(
       isLoggedIn: false,
       hasSeenOnboarding: false,
       user: mockUser,
-      login: (email) =>
-        set((state) => ({
+      login: (email) => {
+        useSavedStore.getState().clear();
+        useReportsStore.getState().clear();
+        usePrefsStore.getState().clear();
+        const trimmedEmail = email.trim();
+        set({
           isLoggedIn: true,
-          user: { ...state.user, email: email.trim() || state.user.email },
-        })),
-      register: (name, email) =>
-        set((state) => ({
+          user: {
+            ...mockUser,
+            email: trimmedEmail || mockUser.email,
+            name: trimmedEmail.split('@')[0] || mockUser.name,
+          },
+        });
+      },
+      register: (name, email) => {
+        useSavedStore.getState().clear();
+        useReportsStore.getState().clear();
+        usePrefsStore.getState().clear();
+        const trimmedName = name.trim();
+        const trimmedEmail = email.trim();
+        set({
           isLoggedIn: true,
           hasSeenOnboarding: true,
           user: {
-            ...state.user,
-            name: name.trim() || state.user.name,
-            email: email.trim() || state.user.email,
+            ...mockUser,
+            name: trimmedName || mockUser.name,
+            email: trimmedEmail || mockUser.email,
           },
-        })),
-      logout: () => set({ isLoggedIn: false }),
+        });
+      },
+      logout: () => {
+        useSavedStore.getState().clear();
+        useReportsStore.getState().clear();
+        usePrefsStore.getState().clear();
+        set({ isLoggedIn: false, user: mockUser });
+      },
       completeOnboarding: () => set({ hasSeenOnboarding: true }),
     }),
     {

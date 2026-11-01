@@ -91,7 +91,7 @@ export default function HomeScreen() {
           <View style={styles.bannerText}>
             <Text style={styles.bannerTitle}>{strings.home.featured}</Text>
             <Text style={styles.bannerSummary} numberOfLines={2}>
-              {strings.home.featuredSummary}
+              {featuredAlert.summary}
             </Text>
             <Text style={styles.bannerLink}>{strings.home.viewDetails} →</Text>
           </View>

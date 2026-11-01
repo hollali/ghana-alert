@@ -54,7 +54,9 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Used to attach photos to your reports."
+          "photosPermission": "Used to attach photos to your reports.",
+          "cameraPermission": false,
+          "microphonePermission": false
         }
       ]
     ],

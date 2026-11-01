@@ -41,7 +41,11 @@ export const FormField = forwardRef<TextInputRef, FormFieldProps>(function FormF
         {...rest}
       />
       {!!error && (
-        <Text style={styles.error} accessibilityLiveRegion="polite">
+        <Text
+          style={styles.error}
+          accessibilityRole="alert"
+          accessibilityLiveRegion="polite"
+        >
           {error}
         </Text>
       )}
@@ -59,7 +63,7 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   input: {
-    height: 48,
+    minHeight: 48,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
@@ -70,7 +74,7 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   multiline: {
-    height: 120,
+    minHeight: 120,
     paddingTop: 12,
     paddingBottom: 12,
   },

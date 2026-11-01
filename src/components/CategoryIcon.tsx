@@ -35,6 +35,8 @@ export function CategoryIcon({
       }}
     >
       <MaterialCommunityIcons
+        accessible={false}
+        importantForAccessibility="no"
         name={meta.icon}
         size={resolvedIconSize}
         color={solid ? '#FFFFFF' : meta.color}

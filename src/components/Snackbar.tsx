@@ -32,7 +32,11 @@ export function Snackbar({
 
   return (
     <View style={[styles.wrapper, { bottom: 16 + bottomOffset }]} pointerEvents="box-none">
-      <View style={styles.container} accessibilityLiveRegion="polite">
+      <View
+        style={styles.container}
+        accessibilityRole="alert"
+        accessibilityLiveRegion="assertive"
+      >
         <Text style={styles.message} numberOfLines={2}>
           {message}
         </Text>
@@ -41,7 +45,8 @@ export function Snackbar({
             onPress={onAction}
             accessibilityRole="button"
             accessibilityLabel={actionLabel}
-            hitSlop={8}
+            hitSlop={12}
+            style={styles.actionButton}
           >
             <Text style={styles.action}>{actionLabel}</Text>
           </Pressable>
@@ -82,5 +87,9 @@ const styles = StyleSheet.create({
     fontFamily: fonts.semibold,
     fontSize: 14,
     color: '#F5A623',
+  },
+  actionButton: {
+    minHeight: 44,
+    justifyContent: 'center',
   },
 });

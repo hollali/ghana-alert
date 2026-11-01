@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     height: 12,
   },
   card: {
-    height: 72,
+    minHeight: 72,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,

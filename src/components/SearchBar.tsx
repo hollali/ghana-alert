@@ -36,7 +36,7 @@ export const SearchBar = forwardRef<TextInputRef, SearchBarProps>(function Searc
     return (
       <Pressable
         onPress={onPress}
-        accessibilityRole="search"
+        accessibilityRole="button"
         accessibilityLabel={accessibilityLabel ?? placeholder}
         style={({ pressed }) => [styles.container, pressed && styles.pressed]}
       >
@@ -68,7 +68,7 @@ export const SearchBar = forwardRef<TextInputRef, SearchBarProps>(function Searc
       {!!value && (
         <Pressable
           onPress={() => onChangeText?.('')}
-          hitSlop={8}
+          hitSlop={12}
           accessibilityRole="button"
           accessibilityLabel="Clear search"
         >

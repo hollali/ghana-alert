@@ -7,6 +7,8 @@ import { colors } from '@/src/theme/tokens';
 export const NOTIFICATION_CHANNEL_ID = 'default';
 
 export function configureNotifications() {
+  if (Platform.OS === 'web') return;
+
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowBanner: true,
@@ -27,6 +29,8 @@ export function configureNotifications() {
 }
 
 export async function requestNotificationPermission(): Promise<boolean> {
+  if (Platform.OS === 'web') return false;
+
   const current = await Notifications.getPermissionsAsync();
   if (current.granted) return true;
   if (!current.canAskAgain) return false;
@@ -35,6 +39,8 @@ export async function requestNotificationPermission(): Promise<boolean> {
 }
 
 export async function scheduleTestAlert(alertId: string, title: string, body: string) {
+  if (Platform.OS === 'web') return false;
+
   const granted = await requestNotificationPermission();
   if (!granted) return false;
 

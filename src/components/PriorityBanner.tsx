@@ -18,7 +18,7 @@ const variants: Record<
   },
   medium: {
     background: '#FFF4E5',
-    text: '#B45309',
+    text: '#9A3412',
     border: '#F8D9A8',
     label: strings.alertDetail.medium,
     icon: 'alert',
@@ -50,7 +50,7 @@ export function PriorityBanner({ priority }: { priority: Priority }) {
 
 const styles = StyleSheet.create({
   container: {
-    height: 48,
+    minHeight: 48,
     borderRadius: radius.md,
     paddingHorizontal: 12,
     alignItems: 'flex-start',
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    height: 28,
+    minHeight: 32,
     paddingHorizontal: 10,
     borderRadius: radius.pill,
     borderWidth: 1,

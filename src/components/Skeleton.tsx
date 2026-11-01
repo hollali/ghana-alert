@@ -57,7 +57,12 @@ export function Skeleton({ width = '100%', height = 14, borderRadius = 6, style 
 
 export function AlertListSkeleton({ count = 5 }: { count?: number }) {
   return (
-    <View style={styles.list}>
+    <View
+      style={styles.list}
+      accessibilityRole="progressbar"
+      accessibilityLabel="Loading alerts"
+      accessibilityLiveRegion="polite"
+    >
       {Array.from({ length: count }).map((_, index) => (
         <View key={index} style={styles.card}>
           <Skeleton width={40} height={40} borderRadius={20} />
@@ -74,7 +79,12 @@ export function AlertListSkeleton({ count = 5 }: { count?: number }) {
 
 export function CategoryListSkeleton({ count = 7 }: { count?: number }) {
   return (
-    <View style={styles.list}>
+    <View
+      style={styles.list}
+      accessibilityRole="progressbar"
+      accessibilityLabel="Loading categories"
+      accessibilityLiveRegion="polite"
+    >
       {Array.from({ length: count }).map((_, index) => (
         <View key={index} style={styles.categoryCard}>
           <Skeleton width={44} height={44} borderRadius={12} />
@@ -104,7 +114,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   categoryCard: {
-    height: 72,
+    minHeight: 72,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,

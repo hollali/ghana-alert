@@ -4,6 +4,8 @@ import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import {
   Alert,
+  Linking,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -46,6 +48,13 @@ export default function NotificationsScreen() {
       Alert.alert(
         strings.notifications.permissionTitle,
         strings.notifications.permissionBody,
+        [
+          { text: strings.common.cancel, style: 'cancel' },
+          {
+            text: strings.common.openSettings,
+            onPress: () => void Linking.openSettings(),
+          },
+        ],
       );
       return;
     }
@@ -53,6 +62,14 @@ export default function NotificationsScreen() {
   };
 
   const sendTest = async () => {
+    if (!notificationsEnabled) {
+      Alert.alert(strings.notifications.title, strings.notifications.enableFirst);
+      return;
+    }
+    if (Platform.OS === 'web') {
+      Alert.alert(strings.notifications.title, strings.notifications.webUnsupported);
+      return;
+    }
     const alert = data.find((item) => item.id === '2') ?? data[0];
     const body = alert ? `${alert.title}. ${alert.summary}` : strings.notifications.testBody;
     const scheduled = await scheduleTestAlert(
@@ -64,6 +81,13 @@ export default function NotificationsScreen() {
       Alert.alert(
         strings.notifications.permissionTitle,
         strings.notifications.permissionBody,
+        [
+          { text: strings.common.cancel, style: 'cancel' },
+          {
+            text: strings.common.openSettings,
+            onPress: () => void Linking.openSettings(),
+          },
+        ],
       );
       return;
     }
@@ -133,9 +157,15 @@ export default function NotificationsScreen() {
 
         <Pressable
           onPress={() => void sendTest()}
+          disabled={!notificationsEnabled}
           accessibilityRole="button"
           accessibilityLabel={`${strings.notifications.test}. ${strings.notifications.testSubtitle}`}
-          style={({ pressed }) => [styles.card, styles.testRow, pressed && styles.pressed]}
+          style={({ pressed }) => [
+            styles.card,
+            styles.testRow,
+            !notificationsEnabled && styles.disabled,
+            pressed && styles.pressed,
+          ]}
         >
           <View style={styles.rowIcon}>
             <Ionicons name="paper-plane-outline" size={20} color={colors.primary} />
@@ -221,6 +251,9 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.75,
+  },
+  disabled: {
+    opacity: 0.45,
   },
   note: {
     marginTop: 4,

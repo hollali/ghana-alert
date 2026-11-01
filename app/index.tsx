@@ -1,7 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -15,9 +15,17 @@ export default function SplashRoute() {
   const insets = useSafeAreaInsets();
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const hasSeenOnboarding = useAuthStore((state) => state.hasSeenOnboarding);
+  const hasRedirected = useRef(false);
 
   useFocusEffect(
     useCallback(() => {
+      if (hasRedirected.current) {
+        if (isLoggedIn) router.replace('/(tabs)');
+        else if (!hasSeenOnboarding) router.replace('/(onboarding)/welcome');
+        else router.replace('/(auth)/login');
+        return;
+      }
+      hasRedirected.current = true;
       const timer = setTimeout(() => {
         if (isLoggedIn) {
           router.replace('/(tabs)');

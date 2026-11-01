@@ -130,6 +130,8 @@ export const strings = {
     categories: 'Alert categories',
     test: 'Send test alert',
     testSubtitle: 'Sends a demo notification in 3 seconds',
+    enableFirst: 'Turn on notifications first.',
+    webUnsupported: 'Notifications are available in the iOS and Android app.',
     testTitle: 'New Alert',
     testBody: 'Fake MTN Data Bundles',
     permissionTitle: 'Notifications disabled',
@@ -208,5 +210,6 @@ export const strings = {
     notFoundTitle: 'This screen doesn’t exist',
     notFoundBody: 'The link you followed may be broken or the page may have moved.',
     goHome: 'Go to Home',
+    openSettings: 'Open Settings',
   },
 };

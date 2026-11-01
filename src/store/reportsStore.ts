@@ -7,6 +7,8 @@ import type { ReportPayload, UserReport } from '@/src/types';
 interface ReportsState {
   reports: UserReport[];
   addReport: (payload: ReportPayload) => UserReport;
+  removeReport: (id: string) => void;
+  clear: () => void;
 }
 
 export const useReportsStore = create<ReportsState>()(
@@ -22,6 +24,9 @@ export const useReportsStore = create<ReportsState>()(
         set((state) => ({ reports: [report, ...state.reports] }));
         return report;
       },
+      removeReport: (id) =>
+        set((state) => ({ reports: state.reports.filter((report) => report.id !== id) })),
+      clear: () => set({ reports: [] }),
     }),
     {
       name: 'ghanaalert-reports',

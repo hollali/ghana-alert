@@ -16,7 +16,7 @@ export function Chip({ label, selected = false, onPress, accessibilityLabel }: C
       accessibilityRole="button"
       accessibilityState={{ selected }}
       accessibilityLabel={accessibilityLabel ?? label}
-      hitSlop={4}
+      hitSlop={8}
       style={({ pressed }) => [
         styles.base,
         selected ? styles.selected : styles.outlined,
@@ -32,7 +32,7 @@ export function Chip({ label, selected = false, onPress, accessibilityLabel }: C
 
 const styles = StyleSheet.create({
   base: {
-    height: 36,
+    minHeight: 44,
     paddingHorizontal: 16,
     borderRadius: radius.pill,
     alignItems: 'center',

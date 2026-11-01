@@ -8,10 +8,12 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -106,11 +108,6 @@ export default function ReportScreen() {
   const pickPhoto = async () => {
     setPhotoError(null);
     try {
-      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!permission.granted) {
-        setPhotoError(strings.report.photoFailed);
-        return;
-      }
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
         quality: 0.8,
@@ -135,6 +132,14 @@ export default function ReportScreen() {
       if (permission.status !== 'granted') {
         setLocationError(strings.location.permissionDenied);
         setLocationOpen(false);
+        Alert.alert(
+          strings.location.permissionDenied,
+          strings.notifications.permissionBody,
+          [
+            { text: strings.common.cancel, style: 'cancel' },
+            { text: strings.common.openSettings, onPress: () => void Linking.openSettings() },
+          ],
+        );
         return;
       }
       const position = await Location.getCurrentPositionAsync({
@@ -387,6 +392,7 @@ export default function ReportScreen() {
         animationType="fade"
         statusBarTranslucent
         onRequestClose={closeSuccess}
+        accessibilityViewIsModal
       >
         <View style={styles.modalRoot}>
           <View style={styles.successCard}>

@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import {
+  Alert,
   Linking,
   Pressable,
   ScrollView,
@@ -74,7 +75,13 @@ export default function HelpScreen() {
         </View>
 
         <Pressable
-          onPress={() => void Linking.openURL('mailto:support@ghanaalert.app')}
+          onPress={async () => {
+            try {
+              await Linking.openURL('mailto:support@ghanaalert.app');
+            } catch {
+              Alert.alert(strings.help.contact, 'Could not open email app.');
+            }
+          }}
           accessibilityRole="link"
           accessibilityLabel="Email support@ghanaalert.app"
           style={({ pressed }) => [styles.emailButton, pressed && styles.pressed]}

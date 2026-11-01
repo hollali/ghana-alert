@@ -6,6 +6,7 @@ import type { SavedEntry, SavedStatus } from '@/src/types';
 
 interface SavedState {
   entries: SavedEntry[];
+  clear: () => void;
   save: (id: string, status?: SavedStatus) => void;
   remove: (id: string) => void;
   toggleSaved: (id: string) => boolean;
@@ -18,6 +19,7 @@ export const useSavedStore = create<SavedState>()(
   persist(
     (set, get) => ({
       entries: [],
+      clear: () => set({ entries: [] }),
       save: (id, status = 'saved') =>
         set((state) => {
           if (state.entries.some((entry) => entry.id === id)) {

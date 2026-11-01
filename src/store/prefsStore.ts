@@ -26,6 +26,7 @@ interface PrefsState {
   notificationsEnabled: boolean;
   categories: Record<CategorySlug, boolean>;
   location: string;
+  clear: () => void;
   setNotificationsEnabled: (enabled: boolean) => void;
   toggleCategory: (slug: CategorySlug) => void;
   setLocation: (location: string) => void;
@@ -34,9 +35,15 @@ interface PrefsState {
 export const usePrefsStore = create<PrefsState>()(
   persist(
     (set) => ({
-      notificationsEnabled: true,
+      notificationsEnabled: false,
       categories: defaultCategories,
       location: 'Accra, Ghana',
+      clear: () =>
+        set({
+          notificationsEnabled: false,
+          categories: defaultCategories,
+          location: 'Accra, Ghana',
+        }),
       setNotificationsEnabled: (enabled) => set({ notificationsEnabled: enabled }),
       toggleCategory: (slug) =>
         set((state) => ({

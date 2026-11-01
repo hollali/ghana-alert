@@ -68,7 +68,7 @@ export function OptionSheet({
             </Pressable>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView showsVerticalScrollIndicator={false} style={{ flexShrink: 1 }}>
             {options.map((option) => {
               const isSelected = option.value === selected;
               return (

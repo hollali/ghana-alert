@@ -5,6 +5,8 @@ import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -34,6 +36,14 @@ export default function LocationScreen() {
       const permission = await Location.requestForegroundPermissionsAsync();
       if (permission.status !== 'granted') {
         setError(strings.location.permissionDenied);
+        Alert.alert(
+          strings.location.permissionDenied,
+          strings.notifications.permissionBody,
+          [
+            { text: strings.common.cancel, style: 'cancel' },
+            { text: strings.common.openSettings, onPress: () => void Linking.openSettings() },
+          ],
+        );
         return;
       }
       const position = await Location.getCurrentPositionAsync({
@@ -252,7 +262,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   regionRow: {
-    height: 50,
+    minHeight: 50,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
