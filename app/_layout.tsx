@@ -1,56 +1,110 @@
-import { useFonts } from 'expo-font';
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+  useFonts,
+} from '@expo-google-fonts/inter';
+import { Stack, router, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { Platform } from 'react-native';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/components/useColorScheme';
+import { useHydration } from '@/src/hooks/useHydration';
+import { useNotificationRouting } from '@/src/hooks/useNotificationRouting';
+import { useAuthStore } from '@/src/store/authStore';
+import { colors } from '@/src/theme/tokens';
+import { configureNotifications } from '@/src/utils/notifications';
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
+export { ErrorBoundary } from 'expo-router';
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
   anchor: '(tabs)',
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+configureNotifications();
+void SplashScreen.preventAutoHideAsync().catch(() => {});
+
+const protectedRoots = new Set([
+  '(tabs)',
+  'alert',
+  'category',
+  'saved',
+  'report',
+  'settings',
+]);
+
+function AuthGuard() {
+  const segments = useSegments();
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const hasSeenOnboarding = useAuthStore((state) => state.hasSeenOnboarding);
+  const root = segments[0];
+
+  useEffect(() => {
+    if (!root) return;
+
+    if (!isLoggedIn && protectedRoots.has(root)) {
+      router.replace(hasSeenOnboarding ? '/(auth)/login' : '/(onboarding)/welcome');
+      return;
+    }
+
+    if (isLoggedIn && (root === '(auth)' || root === '(onboarding)')) {
+      router.replace('/(tabs)');
+    }
+  }, [root, isLoggedIn, hasSeenOnboarding]);
+
+  return null;
+}
 
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+  const [fontsLoaded, fontError] = useFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
   });
-
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
-  useEffect(() => {
-    if (error) throw error;
-  }, [error]);
+  const hydrated = useHydration();
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
+    if (fontError) throw fontError;
+  }, [fontError]);
 
-  if (!loaded) {
+  useEffect(() => {
+    if (!fontsLoaded || !hydrated) return;
+    const timeout = setTimeout(() => {
+      void SplashScreen.hideAsync().catch(() => {});
+    }, Platform.OS === 'web' ? 0 : 300);
+    return () => clearTimeout(timeout);
+  }, [fontsLoaded, hydrated]);
+
+  if (!fontsLoaded || !hydrated) {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <>
+      <StatusBar style="dark" />
+      <AuthGuard />
+      <NotificationsBridge />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: colors.background },
+        }}
+      >
+        <Stack.Screen name="index" options={{ animation: 'fade' }} />
+        <Stack.Screen
+          name="(tabs)"
+          options={{ animation: 'fade', gestureEnabled: false }}
+        />
+      </Stack>
+    </>
+  );
 }
 
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
-  );
+function NotificationsBridge() {
+  useNotificationRouting(true);
+  return null;
 }

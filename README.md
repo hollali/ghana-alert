@@ -1,0 +1,134 @@
+# GhanaAlert
+
+GhanaAlert is a mobile-first consumer alert app for Ghana. It brings product recalls, food and health notices, scams, service disruptions, travel advisories, and consumer-rights guidance into one place so people can make safer choices.
+
+This repository is a fully interactive Expo/React Native frontend demo. Alerts, authentication, and report submissions are mocked and stored on the device. There is no backend.
+
+## Features
+
+- Onboarding and demo login/registration
+- Home screen with greeting, search, featured alert, and category shortcuts
+- Browse all alerts with search, category filters, sorting, and pagination
+- Category screens for all seven alert categories
+- Alert detail with priority banner, affected products, recommended actions, source, and sharing
+- Saved alerts and Read Later lists with removal and undo
+- Consumer issue reports with form validation, current-location detection, and photo attachments
+- Notification preferences, per-category toggles, and a local test notification
+- Region selection, FAQs, help, about, and logout
+- Persistent local state with AsyncStorage
+- Light theme, custom app icon, splash screen, and notification icon
+
+## Tech stack
+
+| Area | Technology |
+| --- | --- |
+| Framework | Expo SDK 58, React Native 0.88, React 19 |
+| Language | TypeScript 6 |
+| Navigation | Expo Router |
+| State | Zustand + AsyncStorage |
+| Forms | React Hook Form + Zod |
+| UI | Custom components, Inter font, Expo Vector Icons |
+| Device APIs | Expo Notifications, Location, Image Picker |
+| Dates | date-fns |
+
+## Getting started
+
+### Requirements
+
+- Node.js 20 or newer
+- npm
+- Expo Go on a physical device, or a local development build
+
+### Install and run
+
+```bash
+git clone https://github.com/hollali/ghana-alert.git
+cd ghana-alert
+npm install
+npm start
+```
+
+Scan the QR code with Expo Go, or press `a`, `i`, or `w` in the Expo terminal for Android, iOS, or web.
+
+### Demo sign-in
+
+Authentication is mocked. Enter any non-empty name, email, and password to continue. No account is created and no credentials are sent anywhere.
+
+## Scripts
+
+| Command | Description |
+| --- | --- |
+| `npm start` | Start the Expo development server |
+| `npm run android` | Start Expo and open Android |
+| `npm run ios` | Start Expo and open iOS |
+| `npm run web` | Start Expo for web |
+| `npm run lint` | Run Expo ESLint |
+| `npm run typecheck` | Run the TypeScript compiler without emitting files |
+
+## Project structure
+
+```text
+app/
+  (onboarding)/welcome.tsx    Onboarding
+  (auth)/login.tsx            Demo sign-in
+  (auth)/register.tsx         Demo registration
+  (tabs)/index.tsx            Home
+  (tabs)/alerts.tsx           Alert browsing, search, filters, pagination
+  (tabs)/categories.tsx       Category overview
+  (tabs)/profile.tsx          Profile and settings menu
+  alert/[id].tsx              Alert detail
+  category/[slug].tsx         Alerts filtered by category
+  saved.tsx                   Saved and Read Later lists
+  report.tsx                  Consumer issue report form
+  settings/                   Notifications, location, help, about
+src/
+  components/                 Shared UI components
+  data/                       Mock alerts, categories, user, FAQs, regions
+  hooks/                      Data loading, hydration, notification routing
+  store/                      Auth, saved alerts, preferences, reports
+  theme/                      Colors, spacing, typography, shadows
+  utils/                      Greeting, time formatting, notifications
+  strings.ts                  Centralized UI copy
+```
+
+## How the demo works
+
+- **Alerts:** 15 sample alerts live in `src/data/alerts.ts`. The loading hooks add a short delay to exercise loading, empty, and error states.
+- **Persistence:** Auth, saved alerts, notification preferences, location, and reports are persisted locally under AsyncStorage keys prefixed with `ghanaalert-`.
+- **Reports:** Submitted reports are validated, saved locally, and confirmed with a success modal. Nothing is transmitted.
+- **Notifications:** The app requests permission when notifications are enabled and can schedule a local test alert. Remote push notifications are not configured.
+- **Location:** Current location and reverse geocoding use Expo Location. If permission is denied, the report form falls back to manual location entry.
+- **Photos:** Report photos are selected from the device library, limited to 5 MB, and previewed locally.
+
+## Design
+
+The interface uses a navy, amber, and off-white palette:
+
+- Primary navy: `#14306B`
+- Accent amber: `#F5A623`
+- Background: `#F6F8FC`
+- Text: `#111827`
+
+Typography uses Inter, and all shared design tokens live in `src/theme/tokens.ts`.
+
+## Known limitations
+
+- No backend, real authentication, real alert feed, or report delivery.
+- No remote push notifications, map view, or production analytics.
+- Report photos are kept in local state only.
+- Native iOS and Android folders are generated by Expo and are intentionally not committed.
+- The iOS bundle identifier and Android package still use the `com.yourorg.ghanaalert` placeholder and should be changed before release.
+
+## Verification
+
+```bash
+npm run typecheck
+npm run lint
+npx expo-doctor
+```
+
+TypeScript and Expo Doctor pass. ESLint reports one non-blocking React Compiler warning in the report form because of the React Hook Form integration.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
