@@ -15,6 +15,7 @@ This repository is a fully interactive Expo/React Native frontend demo. Alerts, 
 - Consumer issue reports with form validation, current-location detection, and photo attachments
 - Notification preferences, per-category toggles, and a local test notification
 - Region selection, FAQs, help, about, and logout
+- Profile editing for name, profile picture, and password
 - Persistent local state with AsyncStorage
 - Light theme, custom app icon, splash screen, and notification icon
 
@@ -80,7 +81,7 @@ app/
   category/[slug].tsx         Alerts filtered by category
   saved.tsx                   Saved and Read Later lists
   report.tsx                  Consumer issue report form
-  settings/                   Notifications, location, help, about
+  settings/                   Notifications, location, help, about, profile
 src/
   components/                 Shared UI components
   data/                       Mock alerts, categories, user, FAQs, regions

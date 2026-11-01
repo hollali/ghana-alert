@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { MenuRow } from '@/src/components/MenuRow';
 import { PrimaryButton } from '@/src/components/PrimaryButton';
@@ -46,7 +46,11 @@ export default function ProfileScreen() {
 
         <View style={styles.userCard}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials(user.name)}</Text>
+            {user.avatarUrl ? (
+              <Image source={{ uri: user.avatarUrl }} style={styles.avatarImage} />
+            ) : (
+              <Text style={styles.avatarText}>{initials(user.name)}</Text>
+            )}
           </View>
           <View style={styles.userTexts}>
             <Text style={styles.userName} numberOfLines={1}>
@@ -59,6 +63,13 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.menuCard}>
+          <MenuRow
+            icon="person-outline"
+            title={strings.profile.edit}
+            subtitle={strings.profile.editTitle}
+            onPress={() => router.push('/settings/profile')}
+          />
+          <View style={styles.divider} />
           <MenuRow
             icon="bookmark-outline"
             title={strings.profile.myAlerts}
@@ -160,11 +171,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#DCEBFC',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
   avatarText: {
     fontFamily: fonts.bold,
     fontSize: 20,
     color: colors.primary,
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
   },
   userTexts: {
     flex: 1,

@@ -2,11 +2,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useRef } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { GhanaFlagRibbon } from '@/src/components/Illustrations';
-import { Logo } from '@/src/components/Logo';
 import { strings } from '@/src/strings';
 import { useAuthStore } from '@/src/store/authStore';
 import { colors, fonts } from '@/src/theme/tokens';
@@ -45,7 +44,12 @@ export default function SplashRoute() {
       <StatusBar style="light" />
 
       <View style={styles.content}>
-        <Logo size={72} />
+        <Image
+          source={require('@/assets/images/splash-icon.png')}
+          style={styles.splashImage}
+          resizeMode="contain"
+          accessibilityLabel="GhanaAlert"
+        />
         <Text style={styles.wordmark}>
           <Text style={styles.white}>Ghana</Text>
           <Text style={styles.amber}>Alert</Text>
@@ -77,6 +81,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingTop: '30%',
+  },
+  splashImage: {
+    width: 160,
+    height: 160,
   },
   wordmark: {
     marginTop: 18,

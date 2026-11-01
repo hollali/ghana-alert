@@ -26,7 +26,7 @@ export default function RegisterScreen() {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
-    register(name, email);
+    register(name, email, password);
     router.replace('/(tabs)');
   };
 

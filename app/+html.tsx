@@ -36,6 +36,6 @@ export default function Root({ children }: PropsWithChildren) {
 
 const responsiveBackground = `
 body {
-  background-color: #ffffff;
+  background-color: #14306B;
 }
 `;

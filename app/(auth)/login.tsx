@@ -22,7 +22,7 @@ export default function LoginScreen() {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
-    login(email);
+    login(email, password);
     router.replace('/(tabs)');
   };
 
