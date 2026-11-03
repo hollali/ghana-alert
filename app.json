@@ -9,10 +9,15 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.yourorg.ghanaalert"
+      "bundleIdentifier": "app.ghanaalert",
+      "infoPlist": {
+        "NSPrivacyTrackingUsageDescription": "This app does not track you.",
+        "NSLocationWhenInUseUsageDescription": "Used to show alerts relevant to your area.",
+        "NSLocationUsageDescription": "Used to show alerts relevant to your area."
+      }
     },
     "android": {
-      "package": "com.yourorg.ghanaalert",
+      "package": "app.ghanaalert",
       "icon": "./assets/images/icon.png",
       "adaptiveIcon": {
         "backgroundColor": "#14306B",
@@ -20,7 +25,11 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -31,7 +40,8 @@
         "resizeMode": "contain",
         "backgroundColor": "#14306B"
       },
-      "backgroundColor": "#14306B"
+      "backgroundColor": "#14306B",
+      "routing": "expo-router"
     },
     "plugins": [
       "expo-router",

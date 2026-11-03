@@ -46,7 +46,9 @@ export default function AboutScreen() {
           <Text style={styles.mission}>“{strings.about.mission}”</Text>
         </View>
 
-        <Text style={styles.footer}>{strings.about.footer}</Text>
+        <Text style={styles.footer}>
+{strings.about.footer}{' '}{strings.help.contactBody}
+</Text>
       </ScrollView>
     </Screen>
   );
