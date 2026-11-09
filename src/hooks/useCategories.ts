@@ -1,13 +1,21 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { categories as mockCategories } from '@/src/data/categories';
+import { mapCategory, publicFetch } from '@/src/lib/api';
 import type { Category } from '@/src/types';
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-async function fetchCategories() {
-  await delay(400);
-  return [...mockCategories];
+async function fetchCategories(): Promise<Category[]> {
+  try {
+    const response = await publicFetch('/api/categories');
+    if (!response.ok) throw new Error(`Categories API ${response.status}`);
+    const rows = (await response.json()) as { slug: string; name: string; description: string }[];
+    const mapped = rows.map(mapCategory);
+    if (mapped.length === 0) throw new Error('Categories API returned no rows, using mock');
+    return mapped;
+  } catch (error) {
+    if (__DEV__) console.warn('[api] Falling back to mock categories:', error);
+    return [...mockCategories];
+  }
 }
 
 export function useCategories() {

@@ -141,6 +141,22 @@ function extractSessionJwt(data: unknown): string | null {
   return null;
 }
 
+function getTrustedOrigin(): string {
+  const override = process.env.EXPO_PUBLIC_APP_ORIGIN?.trim();
+  if (override) return override.replace(/\/$/, '');
+  if (Platform.OS === 'web') {
+    try {
+      const loc = (globalThis as unknown as { location?: { origin?: string } }).location;
+      if (loc?.origin && loc.origin !== 'null') return loc.origin;
+    } catch {
+      // fall through
+    }
+  }
+  // Localhost origins are pre-trusted by Neon Auth, which is what
+  // React Native fetch needs since browsers normally send Origin automatically.
+  return 'http://localhost:8081';
+}
+
 async function authFetch(path: string, init?: RequestInit): Promise<Response> {
   const base = getNeonAuthUrl();
   const url = `${base}${path.startsWith('/') ? path : `/${path}`}`;
@@ -152,6 +168,12 @@ async function authFetch(path: string, init?: RequestInit): Promise<Response> {
   };
   if (cookie && !headers['Cookie'] && !headers['cookie']) {
     headers['Cookie'] = cookie;
+  }
+  // Neon Auth requires an Origin header on POSTs (sign-up/sign-in/sign-out).
+  // Browsers send it for you; React Native fetch does not. Localhost is
+  // pre-trusted, so http://localhost:8081 works for Expo dev.
+  if (!headers['Origin'] && !headers['origin']) {
+    headers['Origin'] = getTrustedOrigin();
   }
 
   const response = await fetch(url, { ...init, headers, credentials: 'omit' });
@@ -303,6 +325,44 @@ export async function getAccessToken(): Promise<string | null> {
   if (jwt) return jwt;
   jwt = await refreshJwt();
   return jwt;
+}
+
+export async function sendVerificationEmail(input: { email: string }): Promise<void> {
+  const response = await authFetch('/send-verification-email', {
+    method: 'POST',
+    body: JSON.stringify({ email: input.email.trim() }),
+  });
+  const data = await parseJson(response);
+  if (!response.ok) throw errorFromResponse(data, response.status);
+}
+
+export async function verifyEmailOtp(input: { email: string; otp: string }): Promise<SessionResult> {
+  const response = await authFetch('/email-otp/verify-email', {
+    method: 'POST',
+    body: JSON.stringify({ email: input.email.trim(), otp: input.otp.trim() }),
+  });
+  const data = await parseJson(response);
+  const jwtFromBody = extractSessionJwt(data);
+  if (jwtFromBody) await storageSet(JWT_KEY, jwtFromBody);
+  if (!response.ok) throw errorFromResponse(data, response.status);
+
+  const d = (data ?? {}) as Record<string, unknown>;
+  const rawUser = (d['user'] ?? {}) as NeonUser;
+  if (rawUser.id && rawUser.email) {
+    return { user: toUser(rawUser), raw: rawUser, jwt: jwtFromBody ?? (await getStoredJwt()) };
+  }
+  const session = await getSession();
+  if (session) return session;
+  throw new NeonAuthError('Verification succeeded but no session was returned', 200);
+}
+
+export async function sendVerificationOtp(input: { email: string; type?: 'email-verification' | 'sign-in' }): Promise<void> {
+  const response = await authFetch('/email-otp/send-verification-otp', {
+    method: 'POST',
+    body: JSON.stringify({ email: input.email.trim(), type: input.type ?? 'email-verification' }),
+  });
+  const data = await parseJson(response);
+  if (!response.ok) throw errorFromResponse(data, response.status);
 }
 
 export function isNeonAuthConfigured(): boolean {

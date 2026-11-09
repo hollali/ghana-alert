@@ -37,6 +37,10 @@ export default function RegisterScreen() {
 
     try {
       await register(name, email, password);
+      if (useAuthStore.getState().needsVerification) {
+        router.replace('/(auth)/verify');
+        return;
+      }
       router.replace('/(tabs)');
     } catch (error) {
       setErrors({

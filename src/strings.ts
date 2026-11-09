@@ -37,6 +37,17 @@ export const strings = {
     nameRequired: 'Enter your name',
     emailRequired: 'Enter your email',
     passwordRequired: 'Enter a password',
+    verifyTitle: 'Verify your email',
+    verifySubtitle: 'Enter the verification code we sent to your email.',
+    verifyCode: 'Verification code',
+    verifyCodePlaceholder: '123456',
+    verifyCodeRequired: 'Enter the verification code',
+    verifyButton: 'Verify',
+    resendButton: 'Resend code',
+    verifyCheckEmail: 'Check your email for a verification code.',
+    verifyExpired: 'Code expired. Tap Resend to get a new one.',
+    verifyLinkFallback: 'If you got a verification link, open it in your browser, then sign in here.',
+    backToSignIn: 'Back to sign in',
   },
 
   home: {

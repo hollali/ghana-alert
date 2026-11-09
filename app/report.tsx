@@ -73,6 +73,8 @@ const locationOptions = [
 
 export default function ReportScreen() {
   const addReport = useReportsStore((state) => state.addReport);
+  const isSyncing = useReportsStore((state) => state.isSyncing);
+  const lastError = useReportsStore((state) => state.lastError);
   const {
     control,
     handleSubmit,
@@ -173,16 +175,19 @@ export default function ReportScreen() {
 
   const onValid = async (values: ReportForm) => {
     setSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    addReport({
-      issueType: values.issueType,
-      title: values.title,
-      description: values.description,
-      location: values.location || undefined,
-      photoUri: photoUri ?? undefined,
-    });
-    setSubmitting(false);
-    setSuccess(true);
+    try {
+      await addReport({
+        issueType: values.issueType,
+        title: values.title,
+        description: values.description,
+        location: values.location || undefined,
+        photoUri: photoUri ?? undefined,
+      });
+      setSubmitting(false);
+      setSuccess(true);
+    } catch {
+      setSubmitting(false);
+    }
   };
 
   const closeSuccess = () => {
@@ -335,14 +340,15 @@ export default function ReportScreen() {
               )}
             </Pressable>
             {!!photoError && <Text style={styles.error}>{photoError}</Text>}
+            {!!lastError && <Text style={styles.error}>{lastError}</Text>}
           </View>
         </ScrollView>
 
         <View style={styles.footer}>
           <PrimaryButton
-            label={submitting ? strings.report.submitting : strings.report.submit}
+            label={submitting || isSyncing ? strings.report.submitting : strings.report.submit}
             onPress={() => handleSubmit(onValid)()}
-            loading={submitting}
+            loading={submitting || isSyncing}
           />
         </View>
       </KeyboardAvoidingView>

@@ -2,11 +2,11 @@
 
 GhanaAlert is a mobile-first consumer alert app for Ghana. It brings product recalls, food and health notices, scams, service disruptions, travel advisories, and consumer-rights guidance into one place so people can make safer choices.
 
-This repository is an Expo/React Native app with a Neon Postgres + Express backend. Authentication uses Neon Auth (Managed Better Auth, email/password) with Bearer JWTs. Alerts are still sample data; report submission is local-first with a protected server endpoint ready for delivery.
+This repository is an Expo/React Native app with a Neon Postgres + Express backend. Authentication uses Neon Auth (Managed Better Auth, email/password) with Bearer JWTs. Alerts/categories are served from the API with mock fallback; reports are posted to the protected server endpoint with local fallback.
 
 ## Features
 
-- Onboarding and Neon Auth login/registration (email/password)
+- Onboarding and Neon Auth login/registration (email/password) with email verification (OTP code)
 - Home screen with greeting, search, featured alert, and category shortcuts
 - Browse all alerts with search, category filters, sorting, and pagination
 - Category screens for all seven alert categories
@@ -50,7 +50,8 @@ This repository is an Expo/React Native app with a Neon Postgres + Express backe
    `https://<host>/neondb/auth`
 3. The JWKS URL is that base URL plus `/.well-known/jwks.json`:
    `https://<host>/neondb/auth/.well-known/jwks.json`
-4. If you ever pasted a database password into chat or Git, reset it in **Connection Details > Reset password** and update `server/.env`.
+4. Enable **Sign-up with Email** and **Verify at Sign-up** (verification codes, works on shared SMTP). Verification links require a custom SMTP provider.
+5. If you ever pasted a database password into chat or Git, reset it in **Connection Details > Reset password** and update `server/.env`.
 
 ### 2. Install and configure env
 
@@ -93,6 +94,29 @@ npx expo start -c
 
 Scan the QR code with Expo Go, or press `a`, `i`, or `w` for Android, iOS, or web.
 
+> On a physical device, `localhost:3000` points to the phone itself. Set `EXPO_PUBLIC_API_BASE_URL` to your PC’s LAN IP (e.g. `http://192.168.1.20:3000`) instead.
+
+### 4. Auth flow
+
+- App calls `{NEON_AUTH_URL}/sign-up/email` and `/sign-in/email` (Better Auth method set).
+- Neon requires an `Origin` header on POSTs; React Native does not send it by default, so `src/lib/neonAuth.ts` sends `Origin: http://localhost:8081` (or `window.location.origin` on web, override with `EXPO_PUBLIC_APP_ORIGIN`). Localhost origins are pre-trusted.
+- Neon sets an HTTP-only session cookie; the app stores it plus the JWT (`set-auth-jwt` header) in SecureStore.
+- API calls use `Authorization: Bearer <jwt>` via `src/lib/api.ts`.
+- Express verifies the JWT against the JWKS endpoint (EdDSA, `iss`/`aud` = auth origin) in `server/services/neonAuth.js`.
+- `POST /api/reports` and `GET /api/me` are protected; alert reads are public.
+
+### 5. Email verification (OTP)
+
+If **Verify at Sign-up** is enabled, signup does not create a session until the email is verified:
+
+1. After signup, or after `Email is not verified` on sign-in, the app routes to `(auth)/verify`.
+2. Enter the verification code from Neon’s email (codes expire after 15 min; the email may say 10 min). Tap **Resend** to mint a new code — older codes are invalidated on resend.
+3. The app calls `/email-otp/verify-email` via `verifyEmailOtp` in `src/lib/neonAuth.ts`, then fetches the session. `autoSignInAfterVerification` logs you in.
+
+App mailer: no Resend/SendGrid needed for dev. Neon Auth sends verification codes via shared SMTP (`auth@mail.myneon.app`). Verification links and production need a custom SMTP provider — see [production checklist](https://neon.com/docs/auth/production-checklist.md).
+
+> If you enabled **Verify at Sign-up** but `Send verification email on sign-up` is off, no code is sent automatically. Tap Resend on the verify screen, or enable it in the Console.
+
 ### EAS builds
 
 `.env` is not shipped to cloud builds. Set the public URL in Expo Services:
@@ -102,14 +126,6 @@ npx eas-cli env:set --name EXPO_PUBLIC_NEON_AUTH_URL --value https://<host>/neon
 ```
 
 `eas.json` build profiles reference `environment: production|preview|development`, so EAS will inject `EXPO_PUBLIC_*` vars into the JS bundle. Server secrets (`DATABASE_URL`, `NEON_AUTH_*`) stay only in `server/.env` on the host that runs `server/index.js`.
-
-### Auth flow
-
-- App calls `{NEON_AUTH_URL}/sign-up/email` and `/sign-in/email` (Better Auth method set).
-- Neon sets an HTTP-only session cookie; the app stores it plus the JWT (`set-auth-jwt` header) in SecureStore.
-- API calls use `Authorization: Bearer <jwt>` via `src/lib/api.ts`.
-- Express verifies the JWT against the JWKS endpoint (EdDSA, `iss`/`aud` = auth origin) in `server/services/neonAuth.js`.
-- `POST /api/reports` and `GET /api/me` are protected; alert reads are public.
 
 ## Scripts
 
@@ -130,6 +146,7 @@ app/
   (onboarding)/welcome.tsx    Onboarding
   (auth)/login.tsx            Neon Auth sign-in
   (auth)/register.tsx         Neon Auth registration
+  (auth)/verify.tsx           Email OTP verification + resend
   (tabs)/index.tsx            Home
   (tabs)/alerts.tsx           Alert browsing, search, filters, pagination
   (tabs)/categories.tsx       Category overview
@@ -142,10 +159,11 @@ app/
 src/
   components/                 Shared UI components
   config/auth.ts              EXPO_PUBLIC_NEON_AUTH_URL + API base URL
-  data/                       Mock alerts, categories, user, FAQs, regions
-  hooks/                      Data loading, hydration, notification routing
-  lib/neonAuth.ts             Neon Auth REST client + SecureStore
-  lib/api.ts                  Authenticated fetch (Bearer JWT)
+  data/                       Mock alerts, categories, user, FAQs, regions (fallback)
+  hooks/useAlerts.ts          GET /api/alerts with mock fallback
+  hooks/useCategories.ts      GET /api/categories with mock fallback
+  lib/neonAuth.ts             Neon Auth REST client + SecureStore + Origin header
+  lib/api.ts                  Public + authenticated fetch, snake_case → camelCase
   store/                      Auth, saved alerts, preferences, reports
   theme/                      Colors, spacing, typography, shadows
   utils/                      Greeting, time formatting, notifications
@@ -159,9 +177,9 @@ server/
 
 ## How it works
 
-- **Alerts:** 15 sample alerts live in `src/data/alerts.ts`. The loading hooks add a short delay to exercise loading, empty, and error states.
+- **Alerts/categories:** The API (`GET /api/alerts`, `/api/categories`) is primary; `src/data/` is fallback when the API is unreachable. Mapping handles `published_at` → `publishedAt`, `affected_products` → `affectedProducts`, etc.
 - **Persistence:** `hasSeenOnboarding` and cached user live in AsyncStorage (`ghanaalert-auth`); session cookie + JWT live in SecureStore. Saved alerts, preferences, and reports use `ghanaalert-*` keys.
-- **Reports:** The form validates, saves locally, and confirms with a success modal. `POST /api/reports` is protected and ready for remote delivery.
+- **Reports:** `reportsStore.addReport()` POSTs to `/api/reports` with the Bearer JWT, maps the returned row, and falls back to a local report. The form shows sync errors if the server is unavailable.
 - **Notifications:** The app requests permission when notifications are enabled and can schedule a local test alert. Remote push notifications are not configured.
 - **Location:** Current location and reverse geocoding use Expo Location. If permission is denied, the report form falls back to manual location entry.
 - **Photos:** Report photos are selected from the device library, limited to 5 MB, and previewed locally.
@@ -185,7 +203,7 @@ Typography uses Inter, and all shared design tokens live in `src/theme/tokens.ts
 
 ## Known limitations
 
-- Alerts are sample data; no real alert feed yet.
+- Alerts are seeded from the same sample data; no admin feed yet.
 - Report photos are kept in local state only until object storage is added.
 - No remote push notifications, map view, or production analytics.
 - Native iOS and Android folders are generated by Expo and are intentionally not committed.

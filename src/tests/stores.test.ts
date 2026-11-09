@@ -13,6 +13,11 @@ jest.mock('@/src/lib/neonAuth', () => ({
   clearAuthStorage: jest.fn(),
 }));
 
+jest.mock('@/src/lib/api', () => ({
+  authenticatedFetch: jest.fn(),
+  publicFetch: jest.fn(),
+}));
+
 describe('authStore', () => {
   beforeEach(async () => {
     await useAuthStore.getState().logout();
@@ -86,9 +91,9 @@ describe('reportsStore', () => {
     useReportsStore.getState().clear();
   });
 
-  it('adds a report', () => {
+  it('adds a report', async () => {
     const store = useReportsStore.getState();
-    const report = store.addReport({
+    const report = await store.addReport({
       issueType: 'product-safety',
       title: 'Test title',
       description: 'Test description',
@@ -98,9 +103,9 @@ describe('reportsStore', () => {
     expect(report.title).toBe('Test title');
   });
 
-  it('removes a report', () => {
+  it('removes a report', async () => {
     const store = useReportsStore.getState();
-    const report = store.addReport({
+    const report = await store.addReport({
       issueType: 'product-safety',
       title: 'Test title',
       description: 'Test description',

@@ -1,18 +1,35 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { alerts as mockAlerts } from '@/src/data/alerts';
+import { mapAlert, publicFetch } from '@/src/lib/api';
 import type { Alert } from '@/src/types';
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-async function fetchAlerts() {
-  await delay(400);
-  return [...mockAlerts];
+async function fetchAlerts(): Promise<Alert[]> {
+  try {
+    const response = await publicFetch('/api/alerts');
+    if (!response.ok) throw new Error(`Alerts API ${response.status}`);
+    const rows = (await response.json()) as ReturnType<typeof mapAlert>[];
+    // API returns snake_case rows; mapAlert handles both shapes
+    const mapped = (rows as unknown as Parameters<typeof mapAlert>[0][]).map(mapAlert);
+    if (mapped.length === 0) throw new Error('Alerts API returned no rows, using mock');
+    return mapped;
+  } catch (error) {
+    if (__DEV__) console.warn('[api] Falling back to mock alerts:', error);
+    return [...mockAlerts];
+  }
 }
 
-async function fetchAlert(id?: string) {
-  await delay(400);
-  return mockAlerts.find((item) => item.id === id);
+async function fetchAlert(id?: string): Promise<Alert | undefined> {
+  if (!id) return undefined;
+  try {
+    const response = await publicFetch(`/api/alerts/${id}`);
+    if (!response.ok) throw new Error(`Alert API ${response.status}`);
+    const row = (await response.json()) as Parameters<typeof mapAlert>[0];
+    return mapAlert(row);
+  } catch (error) {
+    if (__DEV__) console.warn('[api] Falling back to mock alert:', error);
+    return mockAlerts.find((item) => item.id === id);
+  }
 }
 
 export function useAlerts() {

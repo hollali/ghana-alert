@@ -30,8 +30,17 @@ export default function LoginScreen() {
 
     try {
       await login(email, password);
+      // needsVerification means login succeeded but email is unverified
+      if (useAuthStore.getState().needsVerification) {
+        router.replace('/(auth)/verify');
+        return;
+      }
       router.replace('/(tabs)');
     } catch (error) {
+      if (useAuthStore.getState().needsVerification) {
+        router.replace('/(auth)/verify');
+        return;
+      }
       setErrors({ form: error instanceof Error ? error.message : 'Sign-in failed.' });
     }
   };
