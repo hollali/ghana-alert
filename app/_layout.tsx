@@ -40,10 +40,11 @@ function AuthGuard() {
   const segments = useSegments();
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const hasSeenOnboarding = useAuthStore((state) => state.hasSeenOnboarding);
+  const isRestoring = useAuthStore((state) => state.isRestoring);
   const root = segments[0];
 
   useEffect(() => {
-    if (!root) return;
+    if (!root || isRestoring) return;
 
     if (!isLoggedIn && protectedRoots.has(root)) {
       router.replace(hasSeenOnboarding ? '/(auth)/login' : '/(onboarding)/welcome');
@@ -53,7 +54,7 @@ function AuthGuard() {
     if (isLoggedIn && (root === '(auth)' || root === '(onboarding)')) {
       router.replace('/(tabs)');
     }
-  }, [root, isLoggedIn, hasSeenOnboarding]);
+  }, [root, isLoggedIn, hasSeenOnboarding, isRestoring]);
 
   return null;
 }
@@ -66,20 +67,21 @@ export default function RootLayout() {
     Inter_700Bold,
   });
   const hydrated = useHydration();
+  const isRestoring = useAuthStore((state) => state.isRestoring);
 
   useEffect(() => {
     if (fontError) throw fontError;
   }, [fontError]);
 
   useEffect(() => {
-    if (!fontsLoaded || !hydrated) return;
+    if (!fontsLoaded || !hydrated || isRestoring) return;
     const timeout = setTimeout(() => {
       void SplashScreen.hideAsync().catch(() => {});
     }, Platform.OS === 'web' ? 0 : 300);
     return () => clearTimeout(timeout);
-  }, [fontsLoaded, hydrated]);
+  }, [fontsLoaded, hydrated, isRestoring]);
 
-  if (!fontsLoaded || !hydrated) {
+  if (!fontsLoaded || !hydrated || isRestoring) {
     return null;
   }
 

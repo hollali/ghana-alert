@@ -66,7 +66,7 @@ export default function HomeScreen() {
         <View style={styles.greetingBlock}>
           <Text style={styles.greeting}>{greeting()}</Text>
           <Text style={styles.greetingName}>
-            {firstName(user.name)} <Text style={styles.wave}>👋</Text>
+            {firstName(user?.name ?? 'Friend')} <Text style={styles.wave}>👋</Text>
           </Text>
           <Text style={styles.safeLine}>{strings.home.safe}</Text>
         </View>

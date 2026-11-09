@@ -7,6 +7,7 @@ app.use(express.json());
 
 // Database connection
 const pool = require('./services/db').pool;
+const { requireAuth } = require('./services/requireAuth');
 
 // API Routes
 app.get('/health', async (req, res) => {
@@ -16,6 +17,10 @@ app.get('/health', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+app.get('/api/me', requireAuth, async (req, res) => {
+  res.json({ user: req.user });
 });
 
 app.get('/api/categories', async (req, res) => {
@@ -51,7 +56,7 @@ app.get('/api/alerts/:id', async (req, res) => {
   }
 });
 
-app.post('/api/reports', async (req, res) => {
+app.post('/api/reports', requireAuth, async (req, res) => {
   try {
     const { issue_type, title, description, location, photo_uri } = req.body;
     const result = await pool.query(

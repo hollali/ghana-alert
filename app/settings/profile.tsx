@@ -29,8 +29,8 @@ export default function EditProfileScreen() {
   const updateProfile = useAuthStore((state) => state.updateProfile);
   const changePassword = useAuthStore((state) => state.changePassword);
 
-  const [name, setName] = useState(user.name);
-  const [avatarUri, setAvatarUri] = useState<string | null>(user.avatarUrl ?? null);
+  const [name, setName] = useState(user?.name ?? '');
+  const [avatarUri, setAvatarUri] = useState<string | null>(user?.avatarUrl ?? null);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -65,7 +65,7 @@ export default function EditProfileScreen() {
 
   const removePhoto = () => setAvatarUri(null);
 
-  const save = () => {
+  const save = async () => {
     const nextErrors: typeof errors = {};
     if (!name.trim()) nextErrors.name = strings.auth.nameRequired;
 
@@ -94,7 +94,7 @@ export default function EditProfileScreen() {
       updateProfile({ name, avatarUrl: avatarUri });
 
       if (wantsPasswordChange) {
-        const ok = changePassword(currentPassword, newPassword);
+        const ok = await changePassword(currentPassword, newPassword);
         if (!ok) {
           setErrors({ currentPassword: strings.profile.passwordWrong });
           return;
@@ -131,7 +131,7 @@ export default function EditProfileScreen() {
             {avatarUri ? (
               <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
             ) : (
-              <Text style={styles.avatarText}>{initials(name || user.name)}</Text>
+              <Text style={styles.avatarText}>{initials(name || user?.name || 'G')}</Text>
             )}
           </View>
           <View style={styles.avatarActions}>
@@ -171,7 +171,7 @@ export default function EditProfileScreen() {
           />
           <FormField
             label={strings.profile.emailLabel}
-            value={user.email}
+            value={user?.email ?? ''}
             editable={false}
             style={styles.readOnly}
           />
@@ -207,7 +207,7 @@ export default function EditProfileScreen() {
 
         <PrimaryButton
           label={strings.profile.save}
-          onPress={save}
+          onPress={() => void save()}
           loading={saving}
           disabled={saving}
         />

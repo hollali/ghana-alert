@@ -20,8 +20,7 @@ export default function ProfileScreen() {
   const version = Constants.expoConfig?.version ?? '1.0.0';
 
   const handleLogout = () => {
-    logout();
-    router.replace('/(auth)/login');
+    void logout().then(() => router.replace('/(auth)/login'));
   };
 
   return (
@@ -46,18 +45,18 @@ export default function ProfileScreen() {
 
         <View style={styles.userCard}>
           <View style={styles.avatar}>
-            {user.avatarUrl ? (
+            {user?.avatarUrl ? (
               <Image source={{ uri: user.avatarUrl }} style={styles.avatarImage} />
             ) : (
-              <Text style={styles.avatarText}>{initials(user.name)}</Text>
+              <Text style={styles.avatarText}>{initials(user?.name ?? 'G')}</Text>
             )}
           </View>
           <View style={styles.userTexts}>
             <Text style={styles.userName} numberOfLines={1}>
-              {user.name}
+              {user?.name ?? 'Guest'}
             </Text>
             <Text style={styles.userEmail} numberOfLines={1}>
-              {user.email}
+              {user?.email ?? ''}
             </Text>
           </View>
         </View>

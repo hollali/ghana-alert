@@ -11,19 +11,29 @@ import { useAuthStore } from '@/src/store/authStore';
 
 export default function LoginScreen() {
   const login = useAuthStore((state) => state.login);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const storeError = useAuthStore((state) => state.error);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+    form?: string;
+  }>({});
 
-  const submit = () => {
+  const submit = async () => {
     const nextErrors: { email?: string; password?: string } = {};
     if (!email.trim()) nextErrors.email = strings.auth.emailRequired;
     if (!password.trim()) nextErrors.password = strings.auth.passwordRequired;
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
-    login(email, password);
-    router.replace('/(tabs)');
+    try {
+      await login(email, password);
+      router.replace('/(tabs)');
+    } catch (error) {
+      setErrors({ form: error instanceof Error ? error.message : 'Sign-in failed.' });
+    }
   };
 
   return (
@@ -32,7 +42,6 @@ export default function LoginScreen() {
       subtitle={strings.auth.loginSubtitle}
       footer={
         <>
-          <Text style={authStyles.demo}>{strings.auth.demoNote}</Text>
           <View style={authStyles.row}>
             <Text style={authStyles.prompt}>{strings.auth.noAccount} </Text>
             <Pressable
@@ -68,11 +77,16 @@ export default function LoginScreen() {
         autoComplete="password"
         error={errors.password}
         returnKeyType="done"
-        onSubmitEditing={submit}
+        onSubmitEditing={() => void submit()}
       />
+      {(errors.form ?? storeError) ? (
+        <Text style={authStyles.demo}>{errors.form ?? storeError}</Text>
+      ) : null}
       <PrimaryButton
         label={strings.auth.login}
-        onPress={submit}
+        onPress={() => void submit()}
+        loading={isLoading}
+        disabled={isLoading}
         style={{ marginTop: 4 }}
       />
     </AuthShell>

@@ -2,8 +2,12 @@ require('dotenv').config();
 
 const { Pool } = require('pg');
 
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL is not set. Copy from Neon console into server/.env (never commit it).');
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_41EapbRQoWci@ep-still-unit-za1g32u9.c-2.eu-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
+  connectionString: process.env.DATABASE_URL,
 });
 
 pool.query('SELECT NOW() as current_time', (err, res) => {

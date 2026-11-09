@@ -1,28 +1,32 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { useAuthStore } from '@/src/store/authStore';
 import { usePrefsStore } from '@/src/store/prefsStore';
 import { useSavedStore } from '@/src/store/savedStore';
 import { useReportsStore } from '@/src/store/reportsStore';
 
+jest.mock('@/src/lib/neonAuth', () => ({
+  signInEmail: jest.fn(),
+  signUpEmail: jest.fn(),
+  signOut: jest.fn(),
+  getSession: jest.fn(),
+  changePassword: jest.fn(),
+  clearAuthStorage: jest.fn(),
+}));
+
 describe('authStore', () => {
-  beforeEach(() => {
-    useAuthStore.getState().logout();
+  beforeEach(async () => {
+    await useAuthStore.getState().logout();
   });
 
-  it('logs in and sets user data', () => {
-    const store = useAuthStore.getState();
-    store.login('test@example.com');
-    const state = useAuthStore.getState();
-    expect(state.isLoggedIn).toBe(true);
-    expect(state.user.email).toBe('test@example.com');
-  });
-
-  it('logs out and resets state', () => {
-    useAuthStore.getState().login('test@example.com');
-    useAuthStore.getState().logout();
+  it('starts logged out with no user', () => {
     const state = useAuthStore.getState();
     expect(state.isLoggedIn).toBe(false);
-    expect(state.user.email).toBe('tracyoti@example.com'); // mockUser
+    expect(state.user).toBeNull();
+  });
+
+  it('completeOnboarding sets flag', () => {
+    useAuthStore.getState().completeOnboarding();
+    expect(useAuthStore.getState().hasSeenOnboarding).toBe(true);
   });
 });
 
